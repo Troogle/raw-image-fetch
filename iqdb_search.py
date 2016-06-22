@@ -61,7 +61,37 @@ def iqdb_check(filename):
 		return processer.parse(obj)
 	return False
 
+def process_onefile(filename, local=False):
+	if os.path.isfile(filename) and os.path.splitext(filename)[1] in settings.exts:
+		try:
+			if iqdb_check(filename):
+				if not local:
+					shutil.move(filename,
+							os.path.join(settings.processed_dir,filename))
+			else:
+				if not local:
+					shutil.move(filename,
+							os.path.join(settings.error_dir,filename))
+				print(filename,"ERROR NOT FOUND")
+				time.sleep(1)
+		except Exception as e:
+			if not local:
+				shutil.move(filename,
+						os.path.join(settings.error_dir,filename))
+			print("exception happened:",e)
+			time.sleep(1)
+	print("Not Supported")
+
 if __name__ == "__main__":
+	if len(sys.argv) == 2:
+		if os.path.isfile(sys.argv[1]):
+			os.chdir(os.path.split(sys.argv[1])[0])
+			settings.output_dir='.'
+			process_onefile(sys.argv[1],True)
+			os.system("pause")
+			exit()
+		elif os.path.isdir(sys.argv[1]):
+			os.chdir(sys.argv[1])
 	try:
 		os.mkdir(settings.processed_dir)
 		os.mkdir(settings.error_dir)
@@ -70,18 +100,10 @@ if __name__ == "__main__":
 		pass
 	logger = Tee(sys.stdout, open(settings.log_path, 'a'))
 	sys.stdout = logger
-	exts=['.jpg', '.jpeg', '.png', '.bmp', '.gif']
+	
 	for f in os.listdir('.'):
-		if os.path.isfile(f) and os.path.splitext(f)[1] in exts:
-			try:
-				if iqdb_check(f):
-					shutil.move(f,os.path.join(settings.processed_dir,f))
-				else:
-					shutil.move(f,os.path.join(settings.error_dir,f))
-					print(f,"ERROR NOT FOUND")
-					time.sleep(1)
-			except Exception as e:
-				shutil.move(f,os.path.join(settings.error_dir,f))
-				print("exception happened:",e)
-				time.sleep(1)
+		process_onefile(f)
+
 	sys.stdout = sys.__stdout__
+	
+	os.system("pause")
