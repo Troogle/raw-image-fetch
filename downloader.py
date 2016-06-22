@@ -53,7 +53,7 @@ def sankaku_download(url):
 	if parent:
 		parent_link="http://chan.sankakucomplex.com"+parent.find('a').attrs['href']
 		print('Tracing Parent...:', parent_link)
-		sankaku_check(parent_link)
+		sankaku_download(parent_link)
 		return
 	section=s.body.find('a',attrs={'id':'highres'})
 	downlink='http:'+section.attrs['href']
@@ -74,7 +74,7 @@ def danbooru_download(url):
 	if parent:
 		parent_link='http://danbooru.donmai.us/posts/'+parent
 		print('Tracing Parent...:',parent_link)
-		danbooru_check(parent_link)
+		danbooru_download(parent_link)
 		return
 	downlink='http://danbooru.donmai.us'+section.attrs['data-file-url']
 	download(downlink)

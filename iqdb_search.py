@@ -80,7 +80,8 @@ def process_onefile(filename, local=False):
 						os.path.join(settings.error_dir,filename))
 			print("exception happened:",e)
 			time.sleep(1)
-	print("Not Supported")
+	else:
+		print("Not Supported")
 
 if __name__ == "__main__":
 	if len(sys.argv) == 2:
