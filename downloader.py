@@ -5,7 +5,7 @@ from wget import detect_filename
 import requests
 import cfscrape
 import settings
-import tempfile, os, shutil
+import tempfile, os, shutil, re
 
 def filename_fix_existing(filename, dirname='.'):
 	"""Expands name portion of filename with numeric ' (x)' suffix to
@@ -45,20 +45,6 @@ def download(url,handler=requests):
 	print(filename,'downloaded')
 	return filename
 
-def sankaku_download(url):
-	scraper=cfscrape.create_scraper()
-	r=scraper.get(url)
-	s=BeautifulSoup(r.text,"html5lib")
-	parent=s.body.find('div',attrs={'id':'parent-preview'})
-	if parent:
-		parent_link="http://chan.sankakucomplex.com"+parent.find('a').attrs['href']
-		print('Tracing Parent...:', parent_link)
-		sankaku_download(parent_link)
-		return
-	section=s.body.find('a',attrs={'id':'highres'})
-	downlink='http:'+section.attrs['href']
-	download(downlink,scraper)
-
 def shuushuu_download(url):
 	r=requests.get(url)
 	s=BeautifulSoup(r.text,"html.parser")
@@ -79,8 +65,60 @@ def danbooru_download(url):
 	downlink='http://danbooru.donmai.us'+section.attrs['data-file-url']
 	download(downlink)
 
+def sankaku_download(url):
+	scraper=cfscrape.create_scraper()
+	r=scraper.get(url)
+	s=BeautifulSoup(r.text,"html5lib")
+	parent=s.body.find('div',attrs={'id':'parent-preview'})
+	if parent:
+		parent_link="http://chan.sankakucomplex.com"+parent.find('a').attrs['href']
+		print('Tracing Parent...:', parent_link)
+		sankaku_download(parent_link)
+		return
+	section=s.body.find('a',attrs={'id':'highres'})
+	downlink='http:'+section.attrs['href']
+	download(downlink,scraper)
+
+parent_re=re.compile("<a href=\"(.+?)\">parent post</a>")
+
+def yande_download(url):
+	scraper=cfscrape.create_scraper()
+	r=scraper.get("url")
+	s=BeautifulSoup(r.text,"html5lib")
+	parent=parent_re.search(r.text)
+	if parent:
+		parent_link="https://yande.re"+parent.group(1)
+		print('Tracing Parent...:', parent_link)
+		yande_download(parent_link)
+		return
+	section=s.body.find('a',attrs={'id':'png'})
+	if not section:
+		section=s.body.find('a',attrs={'id':'highres'})
+	downlink=section.attrs['href']
+	download(downlink,scraper)
+
+def konachan_download(url):
+	scraper=cfscrape.create_scraper()
+	r=scraper.get("url")
+	s=BeautifulSoup(r.text,"html5lib")
+	parent=parent_re.search(r.text)
+	if parent:
+		parent_link="http://konachan.com"+parent.group(1)
+		print('Tracing Parent...:', parent_link)
+		konachan_download(parent_link)
+		return
+	section=s.body.find('a',attrs={'id':'png'})
+	if not section:
+		section=s.body.find('a',attrs={'id':'highres'})
+	downlink=section.attrs['href']
+	download(downlink,scraper)
+
+
+
 down_defs={
 	"sankaku" : sankaku_download,
 	"shuushuu" : shuushuu_download,
-	"danbooru" : danbooru_download
+	"danbooru" : danbooru_download,
+	"konachan" : konachan_download,
+	"yande" : yande_download
 }

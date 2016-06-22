@@ -4,11 +4,13 @@ from downloader import *
 import settings
 import re, collections
 
-parse_regexs = collections.OrderedDict(
-	(("danbooru",re.compile('danbooru\.donmai\.us')),
-	 ("shuushuu",re.compile('e-shuushuu\.net')),
-	 ("sankaku",re.compile('chan\.sankakucomplex\.com')))
-)
+parse_regexs = collections.OrderedDict((
+	("danbooru",re.compile('danbooru\.donmai\.us')),		#parent, tag
+	("konachan",re.compile('konachan\.com')),				#parent, tag
+	("yande",re.compile('yande\.re')),						#parent, tag
+	("sankaku",re.compile('chan\.sankakucomplex\.com')),	#parent
+	("shuushuu",re.compile('e-shuushuu\.net'))				#
+))
 
 def parse(htmlobj):
 	for processor in parse_regexs:

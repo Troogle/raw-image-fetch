@@ -62,7 +62,9 @@ def iqdb_check(filename):
 	return False
 
 def process_onefile(filename, local=False):
-	if os.path.isfile(filename) and os.path.splitext(filename)[1] in settings.exts:
+	if not os.path.isfile(filename):
+		return
+	if os.path.splitext(filename)[1] in settings.exts:
 		try:
 			if iqdb_check(filename):
 				if not local:
