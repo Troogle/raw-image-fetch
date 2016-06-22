@@ -18,7 +18,7 @@ class Tee(object):
 			f.flush()
 
 def iqdb_limit(filename):
-	if os.path.getsize(filename)*2>settings.maxsize:
+	if os.path.getsize(filename)>settings.maxsize:
 		return True
 	with Image.open(filename) as im:
 		height, width=im.size
