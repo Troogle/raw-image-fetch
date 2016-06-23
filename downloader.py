@@ -83,7 +83,7 @@ parent_re=re.compile("<a href=\"(.+?)\">parent post</a>")
 
 def yande_download(url):
 	scraper=cfscrape.create_scraper()
-	r=scraper.get("url")
+	r=scraper.get(url)
 	s=BeautifulSoup(r.text,"html5lib")
 	parent=parent_re.search(r.text)
 	if parent:
@@ -99,7 +99,7 @@ def yande_download(url):
 
 def konachan_download(url):
 	scraper=cfscrape.create_scraper()
-	r=scraper.get("url")
+	r=scraper.get(url)
 	s=BeautifulSoup(r.text,"html5lib")
 	parent=parent_re.search(r.text)
 	if parent:
