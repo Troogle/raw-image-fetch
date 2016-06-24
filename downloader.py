@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from bs4 import BeautifulSoup
 from wget import detect_filename
+import urllib.request
 import requests
 import cfscrape
 import settings
@@ -30,6 +31,12 @@ def filename_fix_existing(filename, dirname='.'):
 	name = '%s (%d)%s' % (name, idx, ext)
 	return os.path.join(path, name)
 
+def safe_filename(filename):
+	# for NTFS-win32 only
+	unsafe = "".join(chr(x) for x in range(32))
+	unsafe += '/\\:*?"<>|'
+	return ''.join(c for c in filename if not c in unsafe)
+
 def download(url,handler=requests):
 	(fd, tmpfile) = tempfile.mkstemp(".tmp", prefix="", dir=".")
 	response=handler.get(url,stream=True)
@@ -39,6 +46,8 @@ def download(url,handler=requests):
 			fdobject.write(chunk)
 	os.close(fd)
 	filename = detect_filename(url, None, response.headers)
+	filename = urllib.request.unquote(filename)
+	filename = safe_filename(filename)
 	filename = os.path.join(settings.output_dir,filename)
 	filename = filename_fix_existing(filename,settings.output_dir)
 	shutil.move(tmpfile, filename)
